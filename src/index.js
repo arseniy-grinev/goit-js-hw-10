@@ -2,9 +2,12 @@ import './css/styles.css';
 import debounce from 'lodash.debounce';
 import API from './fetchCountries';
 import Notiflix from 'notiflix';
-import countryCardTpl from './templates/country-card.hbs';
+import countryCard from './templates/country-card.js';
 
 const DEBOUNCE_DELAY = 700;
+const Handlebars = require("handlebars");
+const countryCardTpl = Handlebars.compile(countryCard);
+
 
 const inputCountry = document.querySelector('[id="search-box"]');
 const countryInfoContainer = document.querySelector('.country-info');
@@ -16,7 +19,11 @@ function onCountryInput(e) {
     const requestValue = e.target.value.trim();
     console.log(requestValue);
 
-    if (requestValue === '') return;
+    if (requestValue === '') { 
+        resetCountryCard();
+        resetCountryList();
+        return;
+    } ;
     API.fetchCountries(requestValue)
     .then(renderResult)
     .catch(onFetchError());
@@ -27,6 +34,7 @@ function renderResult(params) {
     console.log(params);
     if (params.length === 1) {
         console.log('страна найдена');
+        resetCountryList();
         renderCountryCard(params[0]);
         return;
     }
@@ -47,9 +55,12 @@ function manyMatchesInfo() {
     Notiflix.Notify.info('Too many matches found. Please enter a more specific name.', { timeout: 4000 });
 }
 
-// function renderCountryCard(country) {
-//     const markup = countryCardTpl(country);
-//     countryInfoContainer.innerHTML = markup;
+function renderCountryCard(country) {
+    const markup = countryCardTpl(country);
+    countryInfoContainer.innerHTML = markup;
+}
 
+function resetCountryCard() {
+   countryInfoContainer.innerHTML = ""; 
     
-// }
+}
