@@ -1,12 +1,11 @@
 const countryCard = `   
-    <h2 class="country-name"> <img src="{{flags.svg}}" width=40>  {{name.official}}</h2>
+    <h2 class="country-name"> <img src="{{flag}}" width=40>  {{name}}</h2>
     <p class="card-text"><b>Capital:</b> {{capital}}</p>
     <p class="card-text"><b>Population:</b> {{population}}</p>
-    <p class="card-text"><b>Languages:</b></p>
-    <ul class="list-group"></ul>
+    <p class="card-text"><b>Languages:</b>
     {{#each languages}}
-      <li class="list-group-item">{{langueges.key.value}}</li>
+      <span class="list-group-item"> {{this}} </span>
     {{/each}}
-    </ul> `;
+    </p>`
 
 export default countryCard;

@@ -2,15 +2,18 @@ import './css/styles.css';
 import debounce from 'lodash.debounce';
 import API from './fetchCountries';
 import Notiflix from 'notiflix';
-import countryCard from './templates/country-card.js';
+import countryCard from './templates/country-card';
+import countryList from './templates/country-list';
 
 const DEBOUNCE_DELAY = 700;
 const Handlebars = require("handlebars");
 const countryCardTpl = Handlebars.compile(countryCard);
+const countryListTpl = Handlebars.compile(countryList);
 
 
 const inputCountry = document.querySelector('[id="search-box"]');
 const countryInfoContainer = document.querySelector('.country-info');
+const countryListContainer = document.querySelector('.country-list');
 
 inputCountry.addEventListener('input', debounce(onCountryInput, DEBOUNCE_DELAY));
 
@@ -21,30 +24,42 @@ function onCountryInput(e) {
 
     if (requestValue === '') { 
         resetCountryCard();
-        resetCountryList();
+        // resetCountryList();
         return;
     } ;
-    API.fetchCountries(requestValue)
+    API.fetchCountries(requestValue, onFetchError)
     .then(renderResult)
-    .catch(onFetchError());
+    // .catch(onFetchError());
     
 }
 
 function renderResult(params) {
+    resetConteiners();
     console.log(params);
     if (params.length === 1) {
-        console.log('страна найдена');
+        const country = crerateCountriesInfo(params[0]);
         resetCountryList();
-        renderCountryCard(params[0]);
+        renderCountryCard(country);
         return;
     }
     else if (params.length <= 10) {
-        console.log('найдено несколько стран');
+        const countries = params.map(crerateCountriesInfo);
+        // console.log('найдено несколько стран');
+        console.log(countries);
+        resetCountryCard();
+        renderCountryList(countries);
+        return;
     }
-    else {
+    else if (params.length > 10) {
         console.log('надо добавить символов');
         manyMatchesInfo();
+        resetConteiners();
     }
+}
+
+function resetConteiners() {
+    resetCountryCard();
+    resetCountryList();
 }
 
 function onFetchError(error) {
@@ -55,12 +70,38 @@ function manyMatchesInfo() {
     Notiflix.Notify.info('Too many matches found. Please enter a more specific name.', { timeout: 4000 });
 }
 
-function renderCountryCard(country) {
-    const markup = countryCardTpl(country);
+function renderCountryCard(country, languages) {
+
+    const markup = countryCardTpl(country, languages);
     countryInfoContainer.innerHTML = markup;
 }
 
 function resetCountryCard() {
-   countryInfoContainer.innerHTML = ""; 
-    
+   countryInfoContainer.innerHTML = "";  
+}
+
+function renderCountryList(countries) {
+    const markup = countryListTpl(countries);
+    console.log(markup);
+    countryListContainer.innerHTML = markup;
+}
+
+function resetCountryList() {
+    countryListContainer.innerHTML = "";
+}
+
+function getCountryLanguages(country) {
+    return Object.values(country.languages);
+}
+
+function crerateCountriesInfo(country) {
+    const languages = getCountryLanguages(country);
+    const capital = country.capital[0];
+    const population = country.population;
+    const flag = country.flags.svg;
+    const name = country.name.official;
+
+
+    return {flag, name, capital, population, languages}
+
 }
