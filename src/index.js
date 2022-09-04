@@ -5,7 +5,7 @@ import Notiflix from 'notiflix';
 import countryCard from './templates/country-card';
 import countryList from './templates/country-list';
 
-const DEBOUNCE_DELAY = 700;
+const DEBOUNCE_DELAY = 300;
 const Handlebars = require("handlebars");
 const countryCardTpl = Handlebars.compile(countryCard);
 const countryListTpl = Handlebars.compile(countryList);
